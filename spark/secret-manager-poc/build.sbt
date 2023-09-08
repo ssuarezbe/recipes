@@ -29,6 +29,8 @@ organization := "com.episource"
 
 name := "secretsmanager-poc"
 
+assemblyJarName in assembly := "secretsmanager-poc-fatjar-1.0.jar"
+
 // the following line gets the env variable VERSION_TAG which is set in Travis before_script
 // to whatever is set in the version_tag file
 // for local development, it will use the tag "LOCAL_VERSION" or you can update getOrElse(x)
@@ -70,7 +72,7 @@ dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % jacksonVe
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion % Test
 dependencyOverrides += "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % jacksonVersion % Test
 
-
+/*
 val dependencies = baseDependencies ++ {
   Seq(
     "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -79,9 +81,11 @@ val dependencies = baseDependencies ++ {
     "org.apache.spark" %% "spark-hive" % sparkVersion % "provided",
     "com.amazonaws" % "aws-java-sdk" % awsSdkVersion % "provided"
   )
-}
+}*/
 
-libraryDependencies ++= dependencies
+//libraryDependencies ++= dependencies
+libraryDependencies ++= baseDependencies
+libraryDependencies +="com.amazonaws" % "aws-java-sdk" % awsSdkVersion
 
 // Uber Jar settings
 
@@ -97,7 +101,13 @@ assembly / assemblyMergeStrategy := {
   case _ => MergeStrategy.first
 }
 
+assemblyMergeStrategy in assembly := {
+ case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+ case x => MergeStrategy.first
+}
+
 Compile / run / mainClass := Some("main.scala.example.Main")
+
 
 // Publish artifacts to S3
 publishMavenStyle := true
